@@ -1,0 +1,9 @@
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\Debug\TTQMM WeatherMod.dll
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\Debug\TTQMM WeatherMod.pdb
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csprojAssemblyReference.cache
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csproj.CoreCompileInputs.cache
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.dll
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.pdb
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\mod.json
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
+C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb
