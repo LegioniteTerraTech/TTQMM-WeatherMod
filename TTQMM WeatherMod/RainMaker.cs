@@ -20,7 +20,7 @@ namespace TTQMM_WeatherMod
         public static ParticleSystem FXRainHit;
         public static bool isRaining = true;
         public static float RainWeight = 0.1f;
-        public static bool WaterMod = false;
+        public static bool WaterModExists = false;
         public static float WaterModHeight;
         public static LayerMask CollisionLayers;
 
@@ -43,9 +43,9 @@ namespace TTQMM_WeatherMod
         {
             get
             {
-                if (WaterMod)
+                if (WaterModExists)
                 {
-                    if (WaterModIntegration.WaterHeight > RainSpawnerCenter.position.y)
+                    if (WaterMod.QPatch.WaterHeight > RainSpawnerCenter.position.y)
                         return false;
                 }
                 return isRaining;
@@ -73,7 +73,7 @@ namespace TTQMM_WeatherMod
             oRain.transform.parent = FXFolder.transform;
             oRainHit.transform.parent = oRain.transform;
 
-            CollisionLayers = LayerMask.GetMask("Default", "Water", "Tank");
+            CollisionLayers = LayerMask.GetMask("Default", "Water", "Tank", "Terrain", "Landmarks", "Scenery", "ShieldBulletFilter");
 
             CreateBlurredSprite();
             CreateSpriteMaterial();
@@ -82,10 +82,10 @@ namespace TTQMM_WeatherMod
 
             IsRaining = isRaining;
             Debug.Log("Finished, Created Rain");
-            if (WaterModExists())
+            if (ModExists("WaterMod"))
             {
                 Debug.Log("Found WaterMod!");
-                WaterMod = true;
+                WaterModExists = true;
             }
         }
         static void CreateSpriteMaterial()
@@ -155,6 +155,9 @@ namespace TTQMM_WeatherMod
             c.collidesWith = CollisionLayers;
             c.maxKillSpeed = 0;
             c.minKillSpeed = 0;
+            var b = ps.subEmitters;
+            b.enabled = true;
+            b.AddSubEmitter(FXRainHit, ParticleSystemSubEmitterType.Collision, ParticleSystemSubEmitterProperties.InheritRotation);
             FXRain = ps;
             oRain.AddComponent<RainScript>();
         }
@@ -166,7 +169,7 @@ namespace TTQMM_WeatherMod
             m.simulationSpace = ParticleSystemSimulationSpace.World;
             m.startSize = 0.075f;
             m.startLifetime = 0.25f;
-            m.gravityModifier = 1.5f;
+            m.gravityModifier = .5f;
             var e = ps.emission;
             e.rateOverTime = 0f;
             var s = ps.shape;
@@ -178,11 +181,10 @@ namespace TTQMM_WeatherMod
             r.renderMode = ParticleSystemRenderMode.Stretch;
             r.cameraVelocityScale = 0.05f;
             r.velocityScale = 0.2f;
-            r.lengthScale = 1f;
+            r.lengthScale = 0.2f;
             r.material = blurredMat;
 
             FXRainHit = ps;
-            oRainHit.AddComponent<RainHit>();
         }
 
         public static void UpdateFog()
@@ -217,46 +219,16 @@ namespace TTQMM_WeatherMod
             }
         }
 
-        private static bool WaterModExists()
+        public static bool ModExists(string name)
         {
             foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.FullName.StartsWith("WaterMod"))
+                if (assembly.FullName.StartsWith(name))
                 {
                     return true;
                 }
             }
             return false;
-        }
-
-        private class RainHit : MonoBehaviour
-        {
-            private float PWMHit = 0f;
-
-            private void Update()
-            {
-                if (IsRaining)
-                {
-                    PWMHit += RainWeight * 20f;
-                    int nts = Mathf.FloorToInt(PWMHit);
-                    for (int i = 0; i < nts; i++)
-                    {
-
-                        var c = UnityEngine.Random.insideUnitCircle;
-                        var cc = new Vector3(c.x * 30, 0, c.y * 30);
-                        Ray ray = new Ray(RainSpawnerCenter.position + (RainSpawnerCenter.rotation * cc), oRain.transform.rotation * Vector3.down);
-                        RaycastHit hit;
-                        if (Physics.Raycast(ray, out hit, 40f, CollisionLayers))
-                        {
-                            var emitparams = new ParticleSystem.EmitParams();
-                            emitparams.position = hit.point;
-                            emitparams.velocity = hit.normal;
-                            FXRainHit.Emit(emitparams, 1);
-                        }
-                    }
-                    PWMHit -= nts;
-                }
-            }
         }
     }
 }

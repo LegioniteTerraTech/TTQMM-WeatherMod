@@ -265,7 +265,6 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RainMaker.cs" />
-    <Compile Include="WaterModIntegration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mod.json">

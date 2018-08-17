@@ -42,6 +42,7 @@ namespace TTQMM_WeatherMod
                 Window = GUI.Window(1, Window, GUIWindow, "RainSettings");
             }
         }
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Slash))
