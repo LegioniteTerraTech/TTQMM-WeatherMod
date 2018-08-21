@@ -45,7 +45,7 @@ namespace TTQMM_WeatherMod
             {
                 if (WaterModExists)
                 {
-                    if (WaterMod.QPatch.WaterHeight > RainSpawnerCenter.position.y)
+                    if (WaterMod.WaterHeight > RainSpawnerCenter.position.y)
                         return false;
                 }
                 return isRaining;
@@ -76,12 +76,13 @@ namespace TTQMM_WeatherMod
             CollisionLayers = LayerMask.GetMask("Default", "Water", "Tank", "Terrain", "Landmarks", "Scenery", "ShieldBulletFilter");
 
             CreateBlurredSprite();
+            
             CreateSpriteMaterial();
             CreateRainHit();
             CreateRain();
 
             IsRaining = isRaining;
-            Debug.Log("Finished, Created Rain");
+            Debug.Log("WeatherMod: Created Rain Effects");
             if (ModExists("WaterMod"))
             {
                 Debug.Log("Found WaterMod!");
@@ -125,7 +126,7 @@ namespace TTQMM_WeatherMod
             var m = ps.main;
             m.simulationSpace = ParticleSystemSimulationSpace.World;
             m.startSize = 0.01f;
-            m.startLifetime = 1f;
+            m.startLifetime = 1.75f;
             m.playOnAwake = false;
             m.maxParticles = 5000;
             var v = ps.velocityOverLifetime;
@@ -137,10 +138,10 @@ namespace TTQMM_WeatherMod
             var s = ps.shape;
             s.shapeType = ParticleSystemShapeType.Cone;
             s.angle = 0f;
-            s.radius = 30f;
+            s.radius = 40f;
             s.rotation = Vector3.right * 90f;
-            s.position = Vector3.up * 10f;
-            RainSpawnerCenter.localPosition = Vector3.up * 10f;
+            s.position = Vector3.up * 12.5f;
+            RainSpawnerCenter.localPosition = Vector3.up * 12.5f;
             var r = ps.GetComponent<ParticleSystemRenderer>();
             r.renderMode = ParticleSystemRenderMode.Stretch;
             r.cameraVelocityScale = 0.15f;
@@ -167,16 +168,18 @@ namespace TTQMM_WeatherMod
             var ps = oRainHit.AddComponent<ParticleSystem>();
             var m = ps.main;
             m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = 0.075f;
-            m.startLifetime = 0.25f;
+            m.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.125f);
+            m.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
             m.gravityModifier = .5f;
+            m.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2f);
             var e = ps.emission;
             e.rateOverTime = 0f;
+            e.burstCount = 1;
+            e.SetBurst(0, new ParticleSystem.Burst(0, 1, 3));
             var s = ps.shape;
             s.shapeType = ParticleSystemShapeType.Cone;
             s.angle = 25f;
-            s.radius = 0.1f;
-            s.rotation = Vector3.left * 90f;
+            s.radius = 0.001f;
             var r = ps.GetComponent<ParticleSystemRenderer>();
             r.renderMode = ParticleSystemRenderMode.Stretch;
             r.cameraVelocityScale = 0.05f;
@@ -199,7 +202,7 @@ namespace TTQMM_WeatherMod
             {
                 if (isRaining)
                 {
-                    oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 10f) - lastcampos;
+                    oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
                     oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
                     if (IsRaining)
                     {
@@ -215,7 +218,7 @@ namespace TTQMM_WeatherMod
             }
             private void FixedUpdate()
             {
-                lastcampos = Camera.main.transform.position + Vector3.down * 0.75f;
+                lastcampos = Camera.main.transform.position + Vector3.down * 0.5f;
             }
         }
 
