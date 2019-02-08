@@ -91,7 +91,7 @@ namespace TTQMM_WeatherMod
         }
         static void CreateSpriteMaterial()
         {
-            var shader = Shader.Find("Particles/Additive");
+            var shader = Shader.Find("Standard");
             spriteMaterial = new Material(shader);
 
             blurredMat = new Material(shader);

@@ -7,3 +7,10 @@ C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMo
 C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\mod.json
 C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
 C:\VS Projects\repos\TTQMM WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csprojAssemblyReference.cache
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csproj.CoreCompileInputs.cache
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.dll
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\mod.json
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb
+C:\Users\arnceb20\source\repos\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.pdb
