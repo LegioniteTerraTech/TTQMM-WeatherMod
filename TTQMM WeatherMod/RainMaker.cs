@@ -200,25 +200,33 @@ namespace TTQMM_WeatherMod
             Vector3 lastcampos;
             private void Update()
             {
-                if (isRaining)
+                try
                 {
-                    oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
-                    oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
-                    if (IsRaining)
+                    if (isRaining)
                     {
-                        var e = FXRain.emission;
-                        e.rateOverTime = 5000f * RainWeight;
-                    }
-                    else
-                    {
-                        var e = FXRain.emission;
-                        e.rateOverTime = 0f;
+                        oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
+                        oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
+                        if (IsRaining)
+                        {
+                            var e = FXRain.emission;
+                            e.rateOverTime = 5000f * RainWeight;
+                        }
+                        else
+                        {
+                            var e = FXRain.emission;
+                            e.rateOverTime = 0f;
+                        }
                     }
                 }
+                catch { }
             }
             private void FixedUpdate()
             {
-                lastcampos = Camera.main.transform.position + Vector3.down * 0.5f;
+                try
+                {
+                    lastcampos = Camera.main.transform.position + Vector3.down * 0.5f;
+                }
+                catch { }
             }
         }
 
