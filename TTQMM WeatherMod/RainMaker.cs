@@ -125,20 +125,20 @@ namespace TTQMM_WeatherMod
             var ps = oRain.AddComponent<ParticleSystem>();
             var m = ps.main;
             m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = 0.01f;
-            m.startLifetime = 1.75f;
+            m.startSize = 0.015f;
+            m.startLifetime = 1.85f;
             m.playOnAwake = false;
             m.maxParticles = 5000;
             var v = ps.velocityOverLifetime;
             v.enabled = true;
             v.space = ParticleSystemSimulationSpace.World;
-            v.y = -20f;
+            v.y = -16f;
             var e = ps.emission;
             e.rateOverTime = 1000f;
             var s = ps.shape;
             s.shapeType = ParticleSystemShapeType.Cone;
             s.angle = 0f;
-            s.radius = 40f;
+            s.radius = 60f;
             s.rotation = Vector3.right * 90f;
             s.position = Vector3.up * 12.5f;
             RainSpawnerCenter.localPosition = Vector3.up * 12.5f;
@@ -204,6 +204,11 @@ namespace TTQMM_WeatherMod
                 {
                     if (isRaining)
                     {
+                        if ((lastcampos - Camera.main.transform.position).sqrMagnitude > 10000)
+                        {
+                            lastcampos = Camera.main.transform.position;
+                            return;
+                        }
                         oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
                         oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
                         if (IsRaining)
