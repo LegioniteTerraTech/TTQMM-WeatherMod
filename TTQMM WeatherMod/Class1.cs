@@ -18,10 +18,11 @@ namespace TTQMM_WeatherMod
     }
     public class RainGUI : MonoBehaviour
     {
-        private bool ShowGUI = false;
-        private Rect Window = new Rect(100, 0, 100, 140);
+        static private bool ShowGUI = false;
+        static private Rect Window = new Rect(100, 0, 100, 140);
+        static public GameObject GUIDisp;
 
-        private void GUIWindow(int ID)
+        static private void GUIWindow(int ID)
         {
             GUI.Label(new Rect(0, 20, 100, 20), "RainWeight");
             RainMaker.RainWeight = GUI.HorizontalSlider(new Rect(0, 40, 100, 15), RainMaker.RainWeight, 0f, 1f);
@@ -34,24 +35,31 @@ namespace TTQMM_WeatherMod
             GUI.DragWindow();
         }
 
-        private void OnGUI()
-        {
-            if (ShowGUI)
-            {
-                Window = GUI.Window(1, Window, GUIWindow, "RainSettings");
-            }
-        }
-
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Slash))
             {
                 ShowGUI = !ShowGUI;
+                GUIDisp.SetActive(ShowGUI);
+
             }
         }
         public static void Initiate()
         {
             new GameObject("RainGUI").AddComponent<RainGUI>();
+            GUIDisp = new GameObject();
+            GUIDisp.AddComponent<GUIDisplay>();
+            GUIDisp.SetActive(false);
+        }
+        internal class GUIDisplay : MonoBehaviour
+        {
+            private void OnGUI()
+            {
+                if (ShowGUI)
+                {
+                    Window = GUI.Window(1, Window, GUIWindow, "RainSettings");
+                }
+            }
         }
     }
 }
