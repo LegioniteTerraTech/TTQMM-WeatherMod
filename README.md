@@ -1,5 +1,7 @@
 # TTQMM-WeatherMod
-Right now, this adds rain. This can interact with the WaterMod, rising and lowering the water level based on he weight of it. Pres `/` to open the GUI menu. Download it [here](https://github.com/Aceba1/TTQMM-WeatherMod/tree/master/TTQMM%20WeatherMod/bin).
+Right now, this adds rain. This can interact with the WaterMod, rising and lowering the water level based on he weight of it. Pres `/` to open the GUI menu. 
+
+Download this mod with the [TerraTech Mod Manager](https://github.com/Aceba1/TerraTech-Mod-Manager)
 
 <hr>
 
