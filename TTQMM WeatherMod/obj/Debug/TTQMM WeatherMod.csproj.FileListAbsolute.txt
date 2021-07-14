@@ -21,3 +21,23 @@ C:\Users\GMBut\OneDrive\Documents\GitHub\Mods\TTQMM-WeatherMod\TTQMM WeatherMod\
 C:\Users\GMBut\OneDrive\Documents\GitHub\Mods\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
 C:\Users\GMBut\OneDrive\Documents\GitHub\Mods\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb
 C:\Users\GMBut\OneDrive\Documents\GitHub\Mods\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.pdb
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csprojAssemblyReference.cache
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csproj.CoreCompileInputs.cache
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.dll
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\bin\WeatherMod\mod.json
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb
+C:\Users\Legionite\Desktop\TTQMM-WeatherMod-master\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.pdb
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\TTQMM.WeatherMod\mod.json
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\TTQMM.WeatherMod\TTQMM WeatherMod.dll
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\TTQMM.WeatherMod\TTQMM WeatherMod.pdb
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\WeatherMod\mod.json
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\WeatherMod\TTQMM WeatherMod.dll
+C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\WeatherMod\TTQMM WeatherMod.pdb
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csprojAssemblyReference.cache
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.csproj.CoreCompileInputs.cache
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.dll
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Debug\TTQMM WeatherMod.pdb
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\mod.json
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.dll
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\WeatherMod\TTQMM WeatherMod.pdb

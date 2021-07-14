@@ -10,7 +10,8 @@ namespace TTQMM_WeatherMod
     {
         public static Texture2D blurredSprite;
         public static Material blurredMat;
-        public static Material spriteMaterial;
+        //public static Material spriteMaterial;
+        public static Material mainMaterial;
         private static GameObject FXFolder;
         public static GameObject oRain;
         public static GameObject oRainHit;
@@ -19,10 +20,11 @@ namespace TTQMM_WeatherMod
         public static ParticleSystem FXRain;
         public static ParticleSystem FXRainHit;
         public static bool isRaining = true;
-        public static float RainWeight = 0.1f;
         public static bool WaterModExists = false;
+        public static float RainWeight;
         public static float WaterModHeight;
         public static LayerMask CollisionLayers;
+
 
         public static ParticleSystem.MinMaxGradient WaterGradient = new ParticleSystem.MinMaxGradient(
                 new Gradient()
@@ -58,13 +60,14 @@ namespace TTQMM_WeatherMod
                 }
                 else
                 {
+
                     FXRain.Stop();
                 }
                 isRaining = value;
             }
         }
 
-        public static void Initiate()
+        public static void Initiate()//Startup sequence
         {
             FXFolder = new GameObject("WeatherModFX");
             oRain = new GameObject("Rain");
@@ -89,14 +92,7 @@ namespace TTQMM_WeatherMod
                 WaterModExists = true;
             }
         }
-        static void CreateSpriteMaterial()
-        {
-            var shader = Shader.Find("Standard");
-            spriteMaterial = new Material(shader);
 
-            blurredMat = new Material(shader);
-            blurredMat.mainTexture = blurredSprite;
-        }
         static void CreateBlurredSprite()
         {
             int radius = 4;
@@ -109,6 +105,39 @@ namespace TTQMM_WeatherMod
                 }
             }
             blurredSprite.Apply();
+        }
+        static void CreateSpriteMaterial()
+        {
+
+            //var shader = Shader.Find("Standard");
+            //var shader = Shader.Find("Legacy Shaders/Particles/Additive (Soft)");
+            IEnumerable<Shader> shaders = Resources.FindObjectsOfTypeAll<Shader>();
+            shaders = shaders.Where(s => s.name == "Legacy Shaders/Particles/Alpha Blended");
+            var shader = shaders.ElementAt(1);
+            if (!shader)
+            {
+                Debug.Log("WeatherMod: Could not find shader!  Falling back to standard!");
+                shaders = Resources.FindObjectsOfTypeAll<Shader>();
+                shaders = shaders.Where(s => s.name == "Standard");
+                shader = shaders.ElementAt(1);
+            };
+
+            blurredMat = new Material(shader)
+            {
+                renderQueue = 3500,
+                color = new Color(0.2f, 0.8f, 0.75f, 0.2f)
+            };
+
+            //blurredMat.SetFloat("_Mode", 2f);
+            //blurredMat.SetFloat("_Metallic", 0.6f);
+            //blurredMat.SetFloat("_Glossiness", 0.9f);
+            //blurredMat.SetInt("_SrcBlend", 5);
+            //blurredMat.SetInt("_DstBlend", 10);
+            //blurredMat.SetInt("_ZWrite", 0);
+            //blurredMat.DisableKeyword("_ALPHATEST_ON");
+            //blurredMat.EnableKeyword("_ALPHABLEND_ON");
+            //blurredMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            blurredMat.mainTexture = blurredSprite;
         }
         
         static void CreateRain()
@@ -125,10 +154,12 @@ namespace TTQMM_WeatherMod
             var ps = oRain.AddComponent<ParticleSystem>();
             var m = ps.main;
             m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = 0.015f;
+            m.startSize = 0.05f;
             m.startLifetime = 1.85f;
             m.playOnAwake = false;
             m.maxParticles = 5000;
+            m.gravityModifier = 1f;
+            //m.startColor = WaterGradient; - May need some tweaks to be enabled
             var v = ps.velocityOverLifetime;
             v.enabled = true;
             v.space = ParticleSystemSimulationSpace.World;
@@ -137,6 +168,7 @@ namespace TTQMM_WeatherMod
             e.rateOverTime = 1000f;
             var s = ps.shape;
             s.shapeType = ParticleSystemShapeType.Cone;
+            //s.shapeType = ParticleSystemShapeType.Circle;
             s.angle = 0f;
             s.radius = 60f;
             s.rotation = Vector3.right * 90f;
@@ -168,7 +200,7 @@ namespace TTQMM_WeatherMod
             var ps = oRainHit.AddComponent<ParticleSystem>();
             var m = ps.main;
             m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.125f);
+            m.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
             m.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
             m.gravityModifier = .5f;
             m.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2f);
@@ -202,7 +234,7 @@ namespace TTQMM_WeatherMod
             {
                 try
                 {
-                    if (isRaining)
+                    if (isRaining)//Updater
                     {
                         if ((lastcampos - Camera.main.transform.position).sqrMagnitude > 10000)
                         {
@@ -211,10 +243,20 @@ namespace TTQMM_WeatherMod
                         }
                         oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
                         oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
-                        if (IsRaining)
+                        if (IsRaining) // main
                         {
                             var e = FXRain.emission;
                             e.rateOverTime = 5000f * RainWeight;
+                            var s = FXRain.main;
+                            s.startSize = 0.05f + RainWeight * 0.05f;
+                            s.gravityModifier = 1f + RainWeight * 0.25f;
+                            var r = FXRain.GetComponent<ParticleSystemRenderer>();
+                            r.lengthScale = 2f + RainWeight * 0.2f;
+
+                            var d = oRainHit.GetComponent<ParticleSystem>().shape;
+                            d.radius = 0.0015f + RainWeight * 0.003f;
+                            var m = oRainHit.GetComponent<ParticleSystem>().main;
+                            m.startSpeedMultiplier = 1f + RainWeight * 0.2f;
                         }
                         else
                         {
@@ -222,6 +264,14 @@ namespace TTQMM_WeatherMod
                             e.rateOverTime = 0f;
                         }
                     }
+                    /*
+                    else
+                    {
+                        var e = FXRain.emission;
+                        e.rateOverTime = 0;
+                    }
+                    */
+
                 }
                 catch { }
             }

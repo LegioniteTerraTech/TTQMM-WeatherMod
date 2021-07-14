@@ -2,7 +2,7 @@
   "Id": "aceba1.fx.weather.core",
   "DisplayName": "Weather Mod",
   "Author": "Aceba1",
-  "Version": "0.1.0",
+  "Version": "0.1.1",
   "Enable": true,
   "AssemblyName": "TTQMM WeatherMod.dll",
   "EntryMethod": "TTQMM_WeatherMod.Class1.Main"
