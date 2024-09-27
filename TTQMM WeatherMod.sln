@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTQMM WeatherMod", "TTQMM WeatherMod\TTQMM WeatherMod.csproj", "{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}"
 EndProject
@@ -9,12 +9,15 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Steam|Any CPU = Steam|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Steam|Any CPU.ActiveCfg = Steam|Any CPU
+		{3BA8B6B4-CFAB-447E-B812-2461B045A0AE}.Steam|Any CPU.Build.0 = Steam|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

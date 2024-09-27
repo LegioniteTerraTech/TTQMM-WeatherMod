@@ -7,12 +7,12 @@ namespace TTQMM_WeatherMod
     static class NetworkHandler
     {
         //Handles very much like the Water Mod's netcode, just a tad bit different.
-        static NetworkInstanceId Host;
-        static bool HostExists = false;
+        internal static NetworkInstanceId Host;
+        internal static bool HostExists = false;
 
-        const TTMsgType WeatherChange = (TTMsgType)275;
+        internal const TTMsgType WeatherChange = (TTMsgType)275;
 
-        private static float serverWeatherStrength = Class1.RainIntensity;
+        internal static float serverWeatherStrength = KickStart.RainIntensity;
 
         // For now we will handle it simply with the strength value coming from WeatherCommander to minimise comms strain
         //private static bool serverWeatherActive = false;
@@ -71,49 +71,6 @@ namespace TTQMM_WeatherMod
                 netMsg.ReadMessage(reader);
                 serverWeatherStrength = reader.Strength;
                 Debug.Log("\nReceived new rain strength, changing to " + serverWeatherStrength.ToString());
-            }
-        }
-
-        public static class Patches
-        {
-            [HarmonyPatch(typeof(NetPlayer), "OnRecycle")]
-            static class OnRecycle
-            {
-                static void Postfix(NetPlayer __instance)
-                {
-                    if (__instance.isServer || __instance.isLocalPlayer)
-                    {
-                        serverWeatherStrength = 0f;
-                        Debug.Log("\nDiscarded " + __instance.netId.ToString() + " and reset server weather strength level");
-                        HostExists = false;
-                    }
-                }
-            }
-
-            [HarmonyPatch(typeof(NetPlayer), "OnStartClient")]
-            static class OnStartClient
-            {
-                static void Postfix(NetPlayer __instance)
-                {
-                    Singleton.Manager<ManNetwork>.inst.SubscribeToClientMessage(__instance.netId, WeatherChange, new ManNetwork.MessageHandler(OnClientChangeWeatherStrength));
-                    Debug.Log("\nSubscribed " + __instance.netId.ToString() + " to weather strength updates from host. Sending current weather strength...");
-                    TryBroadcastNewStrength(serverWeatherStrength);
-                }
-            }
-
-            [HarmonyPatch(typeof(NetPlayer), "OnStartServer")]
-            static class OnStartServer
-            {
-                static void Postfix(NetPlayer __instance)
-                {
-                    if (!HostExists)
-                    {
-                        //Singleton.Manager<ManNetwork>.inst.SubscribeToServerMessage(__instance.netId, WeatherChange, new ManNetwork.MessageHandler(OnServerChangeWeatherStrength));
-                        Debug.Log("\nHost started, hooked weather strength broadcasting to " + __instance.netId.ToString());
-                        Host = __instance.netId;
-                        HostExists = true;
-                    }
-                }
             }
         }
     }

@@ -1,0 +1,8 @@
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Steam\TTQMM WeatherMod.csproj.AssemblyReference.cache
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Steam\TTQMM WeatherMod.csproj.CoreCompileInputs.cache
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\Steam\mod.json
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\Steam\TTQMM WeatherMod.dll
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\Steam\0Harmony.dll
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\bin\Steam\TerraTechETCUtil.dll
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Steam\TTQMM WeatherMod.csproj.CopyComplete
+C:\Users\Legionite\Documents\GitHub\TTQMM-WeatherMod\TTQMM WeatherMod\obj\Steam\TTQMM WeatherMod.dll

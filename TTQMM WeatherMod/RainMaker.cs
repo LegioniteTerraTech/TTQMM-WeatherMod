@@ -45,23 +45,30 @@ namespace TTQMM_WeatherMod
         {
             get
             {
-                if (WaterModExists)
+                try
                 {
-                    if (WaterMod.WaterHeight > RainSpawnerCenter.position.y)
-                        return false;
+                    if (WaterModExists)
+                    {
+                        if (WaterMod.WaterHeight > RainSpawnerCenter.position.y)
+                            return false;
+                    }
                 }
+                catch { }
                 return isRaining;
             }
             set
             {
-                if (value == true)
+                if (isRaining != value)
                 {
-                    FXRain.Play();
-                }
-                else
-                {
-
-                    FXRain.Stop();
+                    if (value)
+                    {
+                        FXRain.Play();
+                    }
+                    else
+                    {
+                        FXRain.Stop();
+                    }
+                    ManTimeOfDay.inst.DayNightChangedEvent.Send(ManTimeOfDay.inst.NightTime);
                 }
                 isRaining = value;
             }
@@ -106,27 +113,48 @@ namespace TTQMM_WeatherMod
             }
             blurredSprite.Apply();
         }
+        internal static Shader InsureGetShader(string name)
+        {
+            //var shader = Shader.Find("Standard");
+            Shader shader = Shader.Find(name);
+            //var shader = Shader.Find("Shield");
+            //var shader = Shader.Find("Unlit/Transparent");
+            //var shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply");
+            if (shader == null)
+            {
+                IEnumerable<Shader> shaders = Resources.FindObjectsOfTypeAll<Shader>();
+                /*
+                foreach (var item in shaders)
+                {
+                    if (item && !item.name.NullOrEmpty())
+                        DebugWater.Log(item.name);
+                }
+                */
+                shaders = shaders.Where(s => s.name == name); ////Standard
+                shader = shaders.ElementAt(0);
+                if (shader == null)
+                    Debug.Log("Water Mod: failed to get shader");
+            }
+            return shader;
+        }
         static void CreateSpriteMaterial()
         {
 
             //var shader = Shader.Find("Standard");
             //var shader = Shader.Find("Legacy Shaders/Particles/Additive (Soft)");
-            IEnumerable<Shader> shaders = Resources.FindObjectsOfTypeAll<Shader>();
-            shaders = shaders.Where(s => s.name == "Legacy Shaders/Particles/Alpha Blended");
-            var shader = shaders.ElementAt(1);
-            if (!shader)
-            {
-                Debug.Log("WeatherMod: Could not find shader!  Falling back to standard!");
-                shaders = Resources.FindObjectsOfTypeAll<Shader>();
-                shaders = shaders.Where(s => s.name == "Standard");
-                shader = shaders.ElementAt(1);
-            };
-
+            Shader shader = InsureGetShader("Legacy Shaders/Particles/Alpha Blended");
             blurredMat = new Material(shader)
             {
                 renderQueue = 3500,
-                color = new Color(0.2f, 0.8f, 0.75f, 0.2f)
+                color = new Color(0.2f, 0.8f, 0.75f, 0.8f)
             };
+            blurredMat.mainTexture = blurredSprite;
+            blurredMat.EnableKeyword("_ALPHATEST_ON");
+            blurredMat.EnableKeyword("_ALPHABLEND_ON");
+            blurredMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            blurredMat.DisableKeyword("_EMISSION");
+            blurredMat.SetColor("_Color", new Color(0.2f, 0.8f, 0.75f, 0.8f));
+            blurredMat.SetColor("_EmissionColor", new Color(0.2f, 0.8f, 0.75f, 0.2f));
 
             //blurredMat.SetFloat("_Mode", 2f);
             //blurredMat.SetFloat("_Metallic", 0.6f);
@@ -137,7 +165,6 @@ namespace TTQMM_WeatherMod
             //blurredMat.DisableKeyword("_ALPHATEST_ON");
             //blurredMat.EnableKeyword("_ALPHABLEND_ON");
             //blurredMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            blurredMat.mainTexture = blurredSprite;
         }
         
         static void CreateRain()
@@ -157,13 +184,13 @@ namespace TTQMM_WeatherMod
             m.startSize = 0.05f;
             m.startLifetime = 1.85f;
             m.playOnAwake = false;
-            m.maxParticles = 5000;
+            m.maxParticles = 50000;//5000;
             m.gravityModifier = 1f;
             //m.startColor = WaterGradient; - May need some tweaks to be enabled
             var v = ps.velocityOverLifetime;
             v.enabled = true;
             v.space = ParticleSystemSimulationSpace.World;
-            v.y = -16f;
+            v.y = -26;//-16f;
             var e = ps.emission;
             e.rateOverTime = 1000f;
             var s = ps.shape;
@@ -176,7 +203,8 @@ namespace TTQMM_WeatherMod
             RainSpawnerCenter.localPosition = Vector3.up * 12.5f;
             var r = ps.GetComponent<ParticleSystemRenderer>();
             r.renderMode = ParticleSystemRenderMode.Stretch;
-            r.cameraVelocityScale = 0.15f;
+            r.cameraVelocityScale = 0;
+            //r.cameraVelocityScale = 0.15f;
             r.velocityScale = 0.05f;
             r.lengthScale = 2f;
             r.material = blurredMat;
@@ -246,7 +274,7 @@ namespace TTQMM_WeatherMod
                         if (IsRaining) // main
                         {
                             var e = FXRain.emission;
-                            e.rateOverTime = 5000f * RainWeight;
+                            e.rateOverTime = 2500f * RainWeight;
                             var s = FXRain.main;
                             s.startSize = 0.05f + RainWeight * 0.05f;
                             s.gravityModifier = 1f + RainWeight * 0.25f;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using UnityEngine;
+using TerraTechETCUtil;
 using HarmonyLib;
 
 namespace TTQMM_WeatherMod
@@ -17,8 +18,11 @@ namespace TTQMM_WeatherMod
         public static float RandomChance = 0f; //Rolling the dice
         public static bool isRainyDay = false; //is it supposed to rain today?
         public static bool isCurrentlyRaining = false; //is it raining right now
+        public static float RainIntensityCurrent = 0f;
+
 
         //Brief calculations
+        public static bool ThunderNLightning = false;
         public static float RainIntensityProcessed = 0f;
         public static float RainIntensityProcessedLast = 0f;
         //public static float RainIntensityLerp = 0f;//Fade controller for the rain when entering and leaving - WIP
@@ -27,7 +31,14 @@ namespace TTQMM_WeatherMod
         public static void Save()
         {
             Debug.Log("\nWeatherMod: Writing to Config...");
-            Class1._thisModConfig.WriteConfigJsonFile();
+            try
+            {
+                WaterOptions.Save();
+            }
+            catch
+            {
+                Debug.Log("\nWeatherMod: Writing to Config failed, NativeOptions and/or ConfigHelper unavailable/broken");
+            }
         }
         public static void NetUpdate()
         {
@@ -39,6 +50,51 @@ namespace TTQMM_WeatherMod
             }
         }
 
+        private static FieldInfo m_Sky = typeof(ManTimeOfDay).GetField("m_Sky", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        static Color darkColor = new Color(0f, 0f, 0f, 1f);
+
+        private static bool CamRain = false;
+        static Gradient underWaterSkyColors = new Gradient()
+        {
+            alphaKeys = new GradientAlphaKey[]
+            {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 1f)
+            },
+
+            colorKeys = new GradientColorKey[]
+            {
+                new GradientColorKey(darkColor, 0f),
+                new GradientColorKey(darkColor, 1f),
+            }
+        };
+        private static void MakeDark()
+        {
+            var sky = m_Sky.GetValue(ManTimeOfDay.inst) as TOD_Sky;
+
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
+            RenderSettings.fogStartDistance = 0f;
+            RenderSettings.fogEndDistance = 40f;
+
+            Color abyssColor;
+            abyssColor = darkColor * RainIntensityProcessed;
+            abyssColor.a = 1f;
+            float depthWatch = Mathf.Clamp01((RainIntensityProcessed / 2) - (ManTimeOfDay.inst.NightTime ? 0f : 0.5f));
+            Color darker = abyssColor * (1f - depthWatch);
+            RenderSettings.fogDensity = 160f;
+            RenderSettings.fogColor = darker;
+            RenderSettings.ambientLight = darker;
+            RenderSettings.ambientGroundColor = darker;
+            RenderSettings.ambientIntensity = 1 - RainIntensityProcessed;
+            var keys = underWaterSkyColors.colorKeys;
+            keys[0].color = keys[1].color = darker;
+            underWaterSkyColors.colorKeys = keys;
+
+            sky.Day.AmbientColor = sky.Night.AmbientColor = underWaterSkyColors;
+            sky.Day.FogColor = sky.Night.FogColor = sky.Day.LightColor = sky.Night.LightColor = sky.Day.SkyColor = sky.Night.SkyColor = underWaterSkyColors;
+        }
         public static void WeatherUpdate()
         {
             //Try to get day
@@ -46,7 +102,7 @@ namespace TTQMM_WeatherMod
             {
                 //Fetch the day
                 int cDay = Singleton.Manager<ManTimeOfDay>.inst.GameDay;
-                if (cDay > lDay && Class1.randomRainActive == true)
+                if (cDay > lDay && KickStart.randomRainActive == true)
                 {
                     Debug.Log("\nWeatherMod:");
                     Debug.Log("It's a new day!  Rolling chance of rain...");
@@ -55,8 +111,8 @@ namespace TTQMM_WeatherMod
                     lDay = cDay;
                     RandomChance = UnityEngine.Random.Range(0f, 1f);
                     Debug.Log("  Roll: " + RandomChance);
-                    Debug.Log("  MaxVal: " + Class1.dailyRainChance);
-                    if (RandomChance <= Class1.dailyRainChance)
+                    Debug.Log("  MaxVal: " + KickStart.dailyRainChance);
+                    if (RandomChance <= KickStart.dailyRainChance)
                     {
                         isRainyDay = true;
                         Debug.Log("  Rain!");
@@ -85,14 +141,14 @@ namespace TTQMM_WeatherMod
             {        
                 //Fetch the hour
                 int cHour = Singleton.Manager<ManTimeOfDay>.inst.TimeOfDay;
-                if (cHour > lHour && isRainyDay == true && Class1.randomRainActive == true)
+                if (cHour > lHour && isRainyDay == true && KickStart.randomRainActive == true)
                 {
                     Debug.Log("\nClunk! New hour!  Rolling chance of rain...");
                     Debug.Log("  Last Hour: " + lHour);
                     Debug.Log("  Current Hour: " + cHour);
                     lHour = cHour;
                     RandomChance = UnityEngine.Random.Range(0f, 1f);
-                    float cRainFreq = Mathf.Clamp(0.5f * Class1.totalRainFrequency, 0, 1); //Calculate Rain Frequency
+                    float cRainFreq = Mathf.Clamp(0.5f * KickStart.totalRainFrequency, 0, 1); //Calculate Rain Frequency
                     Debug.Log("  Roll: " + RandomChance);
                     Debug.Log("  MaxVal: " + cRainFreq);
                     if (RandomChance <= cRainFreq)
@@ -111,6 +167,45 @@ namespace TTQMM_WeatherMod
                     Debug.Log("\nTime was changed backwards, resyncing LastHour...");
                     lHour = cHour;
                 }
+                if (RainIntensityProcessed > 0)
+                {
+                    if (ManNetwork.IsNetworked)
+                    {
+                        RainIntensityCurrent = Mathf.Lerp(RainIntensityCurrent, NetworkHandler.ServerWeatherStrength, 0.12f);
+                        CamRain = true;
+                        ManTimeOfDayExt.SetState("WeM", 0, MakeDark);
+                    }
+                    else if (RainMaker.IsRaining)
+                    {
+                        RainIntensityCurrent = Mathf.Lerp(RainIntensityCurrent, RainIntensityProcessed, 0.12f);
+                        CamRain = true;
+                        ManTimeOfDayExt.SetState("WeM", 0, MakeDark);
+                    }
+                    else
+                    {
+                        if (RainIntensityCurrent < 0.05f)
+                            RainIntensityCurrent = 0;
+                        else
+                            RainIntensityCurrent = Mathf.Lerp(RainIntensityCurrent, 0, 0.3f);
+                        if (CamRain)
+                        {   // OUTSIDE the rain
+                            CamRain = false;
+                            ManTimeOfDayExt.RemoveState("WeM");
+                        }
+                    }
+                }
+                else
+                {
+                    if (RainIntensityCurrent < 0.05f)
+                        RainIntensityCurrent = 0;
+                    else
+                        RainIntensityCurrent = Mathf.Lerp(RainIntensityCurrent, 0, 0.3f);
+                    if (CamRain)
+                    {   // OUTSIDE the rain
+                        CamRain = false;
+                        ManTimeOfDayExt.RemoveState("WeM");
+                    }
+                } 
 
             }
             catch //Ooop couldn't fetch the hour
@@ -126,7 +221,7 @@ namespace TTQMM_WeatherMod
                 if (ManNetwork.inst.IsMultiplayer() == true && ManNetwork.IsHost == false)
                 {
                     //Decoupled!
-                    RainMaker.RainWeight = NetworkHandler.ServerWeatherStrength;
+                    RainMaker.RainWeight = RainIntensityCurrent;
                     RainMaker.IsRaining = true;//The intensity will control the rain now
                                                //Debug.Log("\nWeatherMod: Decoupled from local player controls!");
                     NetUpdate();
@@ -135,16 +230,15 @@ namespace TTQMM_WeatherMod
                 else // process the rain
                 {
                     //Single-Player/MP-Host handling
-                    if (Class1.RainToggledOn)
+                    if (KickStart.RainToggledOn)
                     {
-                        RainIntensityProcessed = Class1.RainIntensity;
-                        RainMaker.RainWeight = Class1.RainIntensity;
-                        if (Class1.KeepRainActive)
+                        RainMaker.RainWeight = RainIntensityCurrent = KickStart.RainIntensity;
+                        if (KickStart.KeepRainActive)
                         {
                             RainMaker.IsRaining = true;
                             RainGUI.IsItRaining = true;
                         }
-                        else if (isCurrentlyRaining && Class1.randomRainActive)
+                        else if (isCurrentlyRaining && KickStart.randomRainActive)
                         {
                             RainMaker.IsRaining = true;
                             RainGUI.IsItRaining = true;

@@ -8,9 +8,6 @@ namespace TTQMM_WeatherMod
 {
     public class WaterMod
     {
-        public static float WaterHeight
-        {
-            get => QPatch.WaterHeight;
-        }
+        public static float WaterHeight => QPatch.WaterHeight;
     }
 }
