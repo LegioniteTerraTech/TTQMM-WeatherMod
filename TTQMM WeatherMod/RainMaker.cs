@@ -13,12 +13,14 @@ namespace TTQMM_WeatherMod
         //public static Material spriteMaterial;
         public static Material mainMaterial;
         private static GameObject FXFolder;
-        public static GameObject oRain;
-        public static GameObject oRainHit;
+        public const int rainInstances = 16;
+        public static GameObject[] oRain;
+        public static GameObject[] oRainHit;
+        public static Transform RainMain;
         public static Transform RainSpawnerCenter;
         public static MeshRenderer VisualizeRainSpawnerCenter;
-        public static ParticleSystem FXRain;
-        public static ParticleSystem FXRainHit;
+        public static ParticleSystem[] FXRain;
+        public static ParticleSystem[] FXRainHit;
         public static bool isRaining = true;
         public static bool WaterModExists = false;
         public static float RainWeight;
@@ -62,11 +64,13 @@ namespace TTQMM_WeatherMod
                 {
                     if (value)
                     {
-                        FXRain.Play();
+                        for (int i = 0; i < rainInstances; i++)
+                            FXRain[i].Play();
                     }
                     else
                     {
-                        FXRain.Stop();
+                        for (int i = 0; i < rainInstances; i++)
+                            FXRain[i].Stop();
                     }
                     ManTimeOfDay.inst.DayNightChangedEvent.Send(ManTimeOfDay.inst.NightTime);
                 }
@@ -77,11 +81,19 @@ namespace TTQMM_WeatherMod
         public static void Initiate()//Startup sequence
         {
             FXFolder = new GameObject("WeatherModFX");
-            oRain = new GameObject("Rain");
-            oRainHit = new GameObject("RainHit");
+            oRain = new GameObject[rainInstances];
+            oRainHit = new GameObject[rainInstances];
+            FXRain = new ParticleSystem[rainInstances];
+            FXRainHit = new ParticleSystem[rainInstances];
+            for (int i = 0; i < rainInstances; i++)
+            {
+                oRain[i] = new GameObject("Rain" + i);
+                oRainHit[i] = new GameObject("RainHit" + i);
 
-            oRain.transform.parent = FXFolder.transform;
-            oRainHit.transform.parent = oRain.transform;
+                oRain[i].transform.parent = FXFolder.transform;
+                oRainHit[i].transform.parent = oRain[i].transform;
+            }
+
 
             CollisionLayers = LayerMask.GetMask("Default", "Water", "Tank", "Terrain", "Landmarks", "Scenery", "ShieldBulletFilter");
 
@@ -92,10 +104,10 @@ namespace TTQMM_WeatherMod
             CreateRain();
 
             IsRaining = isRaining;
-            Debug.Log("WeatherMod: Created Rain Effects");
+            DebugWeather.Log("WeatherMod: Created Rain Effects");
             if (ModExists("WaterMod"))
             {
-                Debug.Log("Found WaterMod!");
+                DebugWeather.Log("Found WaterMod!");
                 WaterModExists = true;
             }
         }
@@ -133,7 +145,7 @@ namespace TTQMM_WeatherMod
                 shaders = shaders.Where(s => s.name == name); ////Standard
                 shader = shaders.ElementAt(0);
                 if (shader == null)
-                    Debug.Log("Water Mod: failed to get shader");
+                    DebugWeather.Log("Water Mod: failed to get shader");
             }
             return shader;
         }
@@ -169,85 +181,101 @@ namespace TTQMM_WeatherMod
         
         static void CreateRain()
         {
+            GameObject mainTrans = new GameObject("RainMain");
+            RainMain = mainTrans.transform;
+            mainTrans.AddComponent<RainScript>();
+
             GameObject center = new GameObject("RainCenter");
             GameObject vis = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             GameObject.Destroy(vis.GetComponent<CapsuleCollider>());
             vis.transform.parent = center.transform;
             RainSpawnerCenter = center.transform;
-            RainSpawnerCenter.parent = oRain.transform;
+            RainSpawnerCenter.parent = RainMain;
+
             VisualizeRainSpawnerCenter = vis.GetComponent<MeshRenderer>();
             VisualizeRainSpawnerCenter.enabled = false;
 
-            var ps = oRain.AddComponent<ParticleSystem>();
-            var m = ps.main;
-            m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = 0.05f;
-            m.startLifetime = 1.85f;
-            m.playOnAwake = false;
-            m.maxParticles = 50000;//5000;
-            m.gravityModifier = 1f;
-            //m.startColor = WaterGradient; - May need some tweaks to be enabled
-            var v = ps.velocityOverLifetime;
-            v.enabled = true;
-            v.space = ParticleSystemSimulationSpace.World;
-            v.y = -26;//-16f;
-            var e = ps.emission;
-            e.rateOverTime = 1000f;
-            var s = ps.shape;
-            s.shapeType = ParticleSystemShapeType.Cone;
-            //s.shapeType = ParticleSystemShapeType.Circle;
-            s.angle = 0f;
-            s.radius = 60f;
-            s.rotation = Vector3.right * 90f;
-            s.position = Vector3.up * 12.5f;
+            for (int i = 0; i < oRain.Length; i++)
+            {
+                var ps = oRain[i].AddComponent<ParticleSystem>();
+                var m = ps.main;
+                m.simulationSpace = ParticleSystemSimulationSpace.World;
+                m.startSize = 0.015f;
+                m.startLifetime = 1.85f;
+                m.playOnAwake = false;
+                m.maxParticles = 50000;//5000;
+                m.gravityModifier = 1f;
+                //m.startColor = WaterGradient; - May need some tweaks to be enabled
+                var v = ps.velocityOverLifetime;
+                v.enabled = true;
+                v.space = ParticleSystemSimulationSpace.World;
+                v.y = -26;//-16f;
+                var e = ps.emission;
+                e.rateOverTime = 1000f;
+                var s = ps.shape;
+                s.shapeType = ParticleSystemShapeType.Cone;
+                //s.shapeType = ParticleSystemShapeType.Circle;
+                s.angle = 0f;
+                s.radius = 180f;
+                s.rotation = Vector3.right * 90f;
+                s.position = Vector3.up * 12.5f;
+                var r = ps.GetComponent<ParticleSystemRenderer>();
+                r.renderMode = ParticleSystemRenderMode.Stretch;
+                //r.cameraVelocityScale = 0;
+                r.cameraVelocityScale = 0.15f;
+                r.velocityScale = 0.05f;
+                r.lengthScale = 2f;
+                r.maxParticleSize = 0.5f;
+                r.material = blurredMat;
+                var c = ps.collision;
+                c.enabled = true;
+                c.type = ParticleSystemCollisionType.World;
+                c.quality = ParticleSystemCollisionQuality.High;
+                c.enableDynamicColliders = true;
+                c.collidesWith = CollisionLayers;
+                c.maxKillSpeed = 0;
+                c.minKillSpeed = 0;
+                var b = ps.subEmitters;
+                Transform trans = oRain[i].transform;
+                trans.parent = RainMain;
+                trans.localScale = Vector3.one;
+                trans.localPosition = Vector3.zero;
+                trans.localRotation = Quaternion.identity;
+                b.enabled = true;
+                b.AddSubEmitter(FXRainHit[i], ParticleSystemSubEmitterType.Collision, ParticleSystemSubEmitterProperties.InheritRotation);
+                FXRain[i] = ps;
+            }
             RainSpawnerCenter.localPosition = Vector3.up * 12.5f;
-            var r = ps.GetComponent<ParticleSystemRenderer>();
-            r.renderMode = ParticleSystemRenderMode.Stretch;
-            r.cameraVelocityScale = 0;
-            //r.cameraVelocityScale = 0.15f;
-            r.velocityScale = 0.05f;
-            r.lengthScale = 2f;
-            r.material = blurredMat;
-            var c = ps.collision;
-            c.enabled = true;
-            c.type = ParticleSystemCollisionType.World;
-            c.quality = ParticleSystemCollisionQuality.High;
-            c.enableDynamicColliders = true;
-            c.collidesWith = CollisionLayers;
-            c.maxKillSpeed = 0;
-            c.minKillSpeed = 0;
-            var b = ps.subEmitters;
-            b.enabled = true;
-            b.AddSubEmitter(FXRainHit, ParticleSystemSubEmitterType.Collision, ParticleSystemSubEmitterProperties.InheritRotation);
-            FXRain = ps;
-            oRain.AddComponent<RainScript>();
         }
 
         private static void CreateRainHit()
         {
-            var ps = oRainHit.AddComponent<ParticleSystem>();
-            var m = ps.main;
-            m.simulationSpace = ParticleSystemSimulationSpace.World;
-            m.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
-            m.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
-            m.gravityModifier = .5f;
-            m.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2f);
-            var e = ps.emission;
-            e.rateOverTime = 0f;
-            e.burstCount = 1;
-            e.SetBurst(0, new ParticleSystem.Burst(0, 1, 3));
-            var s = ps.shape;
-            s.shapeType = ParticleSystemShapeType.Cone;
-            s.angle = 25f;
-            s.radius = 0.001f;
-            var r = ps.GetComponent<ParticleSystemRenderer>();
-            r.renderMode = ParticleSystemRenderMode.Stretch;
-            r.cameraVelocityScale = 0.05f;
-            r.velocityScale = 0.2f;
-            r.lengthScale = 0.2f;
-            r.material = blurredMat;
+            for (int i = 0; i < oRain.Length; i++)
+            {
+                var ps = oRainHit[i].AddComponent<ParticleSystem>();
+                var m = ps.main;
+                m.simulationSpace = ParticleSystemSimulationSpace.World;
+                m.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.125f);
+                m.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
+                m.gravityModifier = .5f;
+                m.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2f);
+                var e = ps.emission;
+                e.rateOverTime = 0f;
+                e.burstCount = 1;
+                e.SetBurst(0, new ParticleSystem.Burst(0, 1, 3));
+                var s = ps.shape;
+                s.shapeType = ParticleSystemShapeType.Cone;
+                s.angle = 25f;
+                s.radius = 0.001f;
+                var r = ps.GetComponent<ParticleSystemRenderer>();
+                r.renderMode = ParticleSystemRenderMode.Stretch;
+                r.cameraVelocityScale = 0.05f;
+                r.velocityScale = 0.2f;
+                r.lengthScale = 0.2f;
+                r.material = blurredMat;
 
-            FXRainHit = ps;
+                FXRainHit[i] = ps;
+            }
         }
 
         public static void UpdateFog()
@@ -258,7 +286,7 @@ namespace TTQMM_WeatherMod
         private class RainScript : MonoBehaviour
         {
             Vector3 lastcampos;
-            private void Update()
+            internal void Update()
             {
                 try
                 {
@@ -269,27 +297,30 @@ namespace TTQMM_WeatherMod
                             lastcampos = Camera.main.transform.position;
                             return;
                         }
-                        oRain.transform.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
-                        oRain.transform.rotation = Quaternion.LookRotation((Camera.main.transform.position - lastcampos), Vector3.up) * Quaternion.Euler(90, 0, 0);
-                        if (IsRaining) // main
+                        RainMain.position = Camera.main.transform.position * 2 + (Camera.main.transform.rotation * Vector3.forward * 17.5f) - lastcampos;
+                        RainMain.transform.rotation = Quaternion.LookRotation(Camera.main.transform.position - lastcampos, Vector3.up) * Quaternion.Euler(90, 0, 0);
+                        for (int i = 0; i < rainInstances; i++)
                         {
-                            var e = FXRain.emission;
-                            e.rateOverTime = 2500f * RainWeight;
-                            var s = FXRain.main;
-                            s.startSize = 0.05f + RainWeight * 0.05f;
-                            s.gravityModifier = 1f + RainWeight * 0.25f;
-                            var r = FXRain.GetComponent<ParticleSystemRenderer>();
-                            r.lengthScale = 2f + RainWeight * 0.2f;
+                            if (IsRaining) // main
+                            {
+                                var e = FXRain[i].emission;
+                                e.rateOverTime = 2500f * RainWeight;
+                                var s = FXRain[i].main;
+                                s.startSize = 0.015f + RainWeight * 0.05f;
+                                s.gravityModifier = 1f + RainWeight * 0.25f;//* 0.25f;
+                                //var r = FXRain[i].GetComponent<ParticleSystemRenderer>();
+                                //r.lengthScale = 2f + RainWeight * 0.2f;
 
-                            var d = oRainHit.GetComponent<ParticleSystem>().shape;
-                            d.radius = 0.0015f + RainWeight * 0.003f;
-                            var m = oRainHit.GetComponent<ParticleSystem>().main;
-                            m.startSpeedMultiplier = 1f + RainWeight * 0.2f;
-                        }
-                        else
-                        {
-                            var e = FXRain.emission;
-                            e.rateOverTime = 0f;
+                                var d = oRainHit[i].GetComponent<ParticleSystem>().shape;
+                                d.radius = 0.0015f + RainWeight * 0.003f;
+                                var m = oRainHit[i].GetComponent<ParticleSystem>().main;
+                                m.startSpeedMultiplier = 1f + RainWeight * 0.2f;
+                            }
+                            else
+                            {
+                                var e = FXRain[i].emission;
+                                e.rateOverTime = 0f;
+                            }
                         }
                     }
                     /*
@@ -303,7 +334,7 @@ namespace TTQMM_WeatherMod
                 }
                 catch { }
             }
-            private void FixedUpdate()
+            internal void FixedUpdate()
             {
                 try
                 {

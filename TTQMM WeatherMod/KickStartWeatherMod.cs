@@ -10,10 +10,10 @@ namespace TTQMM_WeatherMod
     public static class AICommands
     {
         [DevCommand(Name = KickStartWeatherMod.modName + ".RainNow", Access = Access.Public, Users = User.Host)]
-        public static ManDevCommands.CommandReturn MakeItRain()
+        public static CommandReturn MakeItRain()
         {
             WeatherCommander.isCurrentlyRaining = true;
-            return new ManDevCommands.CommandReturn
+            return new CommandReturn
             {
                 message = "It's raining!",
                 success = true,
@@ -28,14 +28,14 @@ namespace TTQMM_WeatherMod
         bool firstInit = false;
         public override bool HasEarlyInit()
         {
-            Debug.Log("WeatherMod: CALLED");
+            DebugWeather.Log("WeatherMod: CALLED");
             return true;
         }
 
         // IDK what I should init here...
         public override void EarlyInit()
         {
-            Debug.Log("WeatherMod: CALLED EARLYINIT");
+            DebugWeather.Log("WeatherMod: CALLED EARLYINIT");
             if (isInit)
                 return;
             try
@@ -47,7 +47,7 @@ namespace TTQMM_WeatherMod
         }
         public override void Init()
         {
-            Debug.Log("WeatherMod: CALLED INIT");
+            DebugWeather.Log("WeatherMod: CALLED INIT");
             if (isInit)
                 return;
             try
