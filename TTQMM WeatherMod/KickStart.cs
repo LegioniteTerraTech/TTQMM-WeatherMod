@@ -71,7 +71,7 @@ namespace TTQMM_WeatherMod
             {
                 WaterOptions.SetupOptionsAndConfig();
             }
-            catch
+            catch 
             {
                 DebugWeather.Log("WeatherMod: NativeOptions and/or ConfigHelper failed to load.  Are they unavailable?");
             }
